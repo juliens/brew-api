@@ -100,7 +100,6 @@ type Cask struct {
 var cacheResponse map[string]HashResponse
 
 func main() {
-
 	cacheResponse = make(map[string]HashResponse)
 	casks := []*Cask{}
 	file, err := os.ReadFile("./cask.json")
@@ -120,9 +119,7 @@ func main() {
 	go func() {
 		for response := range result {
 			results[response.Token] = response
-
 			fmt.Printf("handle response %s %s Error: %s\n", response.Token, response.Hash, response.Err)
-
 			new, err := json.Marshal(results)
 			if err != nil {
 				log.Fatal(err)
@@ -175,7 +172,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	os.WriteFile("./cask2.json", new, 0x777)
+	os.WriteFile("./cask.json", new, 0x777)
 
 }
 
@@ -190,7 +187,7 @@ func getHash(url string) (string, error) {
 
 func HandleHashRequest(cask Cask) HashResponse {
 	if cacheItem, ok := cacheResponse[cask.Token]; ok {
-		if cacheItem.Hash != "" && cacheItem.Version == cask.Version {
+		if cacheItem.Version == cask.Version {
 			fmt.Println("FROM CACHE")
 			return cacheItem
 		}
