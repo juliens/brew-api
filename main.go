@@ -120,13 +120,17 @@ func main() {
 		for response := range result {
 			results[response.Token] = response
 		}
-		new, err := json.Marshal(results)
+
+		cacheFile, err := os.OpenFile("./cache.json", os.O_WRONLY, 0x777)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		os.WriteFile("./cache.json", new, 0x777)
-
+		encoder := json.NewEncoder(cacheFile)
+		encoder.SetIndent("", "  ")
+		err = encoder.Encode(results)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}()
 
 	workers := make(chan Cask)
