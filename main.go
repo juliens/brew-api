@@ -116,6 +116,8 @@ func main() {
 
 	result := make(chan HashResponse)
 	results := map[string]HashResponse{}
+	json.Unmarshal(cache, &results)
+
 	go func() {
 		for response := range result {
 			results[response.Token] = response
@@ -125,6 +127,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		encoder := json.NewEncoder(cacheFile)
 		encoder.SetIndent("", "  ")
 		err = encoder.Encode(results)
@@ -140,6 +143,7 @@ func main() {
 			wg.Add(1)
 			defer wg.Done()
 			for worker := range workers {
+				fmt.Println("WORKERS")
 				result <- HandleHashRequest(worker)
 			}
 		}()
