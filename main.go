@@ -119,14 +119,14 @@ func main() {
 	go func() {
 		for response := range result {
 			results[response.Token] = response
-			fmt.Printf("handle response %s %s Error: %s\n", response.Token, response.Hash, response.Err)
-			new, err := json.Marshal(results)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			os.WriteFile("./cache.json", new, 0x777)
 		}
+		new, err := json.Marshal(results)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		os.WriteFile("./cache.json", new, 0x777)
+
 	}()
 
 	workers := make(chan Cask)
@@ -167,13 +167,17 @@ func main() {
 		}
 	}
 
-	new, err := json.Marshal(casks)
+	caskJson, err := os.OpenFile("./cask.json", os.O_WRONLY, 0x777)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	os.WriteFile("./cask.json", new, 0x777)
-
+	encoder := json.NewEncoder(caskJson)
+	encoder.SetIndent("", "  ")
+	err = encoder.Encode(casks)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func getHash(url string) (string, error) {
@@ -188,7 +192,6 @@ func getHash(url string) (string, error) {
 func HandleHashRequest(cask Cask) HashResponse {
 	if cacheItem, ok := cacheResponse[cask.Token]; ok {
 		if cacheItem.Version == cask.Version {
-			fmt.Println("FROM CACHE")
 			return cacheItem
 		}
 	}
@@ -201,7 +204,6 @@ func HandleHashRequest(cask Cask) HashResponse {
 		msg = err.Error() + string(err.(*exec.ExitError).Stderr)
 	}
 
-	fmt.Println("MESSAGE " + msg)
 	return HashResponse{
 		Hash:    strings.TrimSpace(hash),
 		Err:     msg,
