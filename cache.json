@@ -67,8 +67,8 @@
   },
   "adobe-acrobat-pro": {
     "Token": "adobe-acrobat-pro",
-    "Version": "24.002.20736",
-    "Hash": "1y1b45cm843alm10ryx63p499ijjwahfyvvhxp9jz34rp774dhvj",
+    "Version": "24.002.20759",
+    "Hash": "1w96f92chca5k2529fygwn71mm2k32h0b15g1q0fycn2qhdy47y6",
     "Err": ""
   },
   "adobe-air": {
@@ -604,6 +604,12 @@
     "Version": "0.6.4",
     "Hash": "",
     "Err": "exit status 1"
+  },
+  "chatgpt": {
+    "Token": "chatgpt",
+    "Version": "latest",
+    "Hash": "1li6j83kbnn8k4ykqwf3cinxdkxhkyg4xncsvn8qzlrbzbryki36",
+    "Err": ""
   },
   "chatwork": {
     "Token": "chatwork",
@@ -1405,7 +1411,7 @@
   },
   "foldit": {
     "Token": "foldit",
-    "Version": "33",
+    "Version": "34",
     "Hash": "16byfx6y6i56bx1d54g2xwjz6bfw4ga97zngfcc1rs649imv8y1m",
     "Err": ""
   },
@@ -1549,8 +1555,8 @@
   },
   "google-chrome": {
     "Token": "google-chrome",
-    "Version": "124.0.6367.202",
-    "Hash": "1jlfq7ka2bml3c0m1s3h8hyhpgagvii7fawaisb68bdyanxw4g2x",
+    "Version": "124.0.6367.208",
+    "Hash": "0isn19siq50i5x0bca1rx19169b4ny8xmv594jnvyjl75a9j9h0p",
     "Err": ""
   },
   "google-chrome@beta": {
@@ -1567,8 +1573,8 @@
   },
   "google-chrome@dev": {
     "Token": "google-chrome@dev",
-    "Version": "126.0.6452.3",
-    "Hash": "1ksdacfxvvvfjhq4gkl0zl4iq61ybz21flrbhcp1w78n3y2v2xyh",
+    "Version": "126.0.6468.2",
+    "Hash": "0vypr0mlrcpal85yqi0vrs3xlkxp5b3gnv9bd826y80nv5qacf5m",
     "Err": ""
   },
   "google-drive": {
@@ -2179,8 +2185,8 @@
   },
   "lm-studio": {
     "Token": "lm-studio",
-    "Version": "0.2.22",
-    "Hash": "00wikwivg7dsp8z5rd6698jndjkkhns7jbj83vr9g0jwcjkg7snc",
+    "Version": "0.2.23",
+    "Hash": "1b407frf5yamwsfblnakbssv7fzv0fhj6inywc8hqliwixvkqh8m",
     "Err": ""
   },
   "loading": {
@@ -2689,8 +2695,8 @@
   },
   "naver-whale": {
     "Token": "naver-whale",
-    "Version": "3.25.232.19",
-    "Hash": "0z05azz3hkfrjc3jrlbihpjl0qxi16xzb0zy4qlxvss9anm248jp",
+    "Version": "3.26.244.14",
+    "Hash": "11i7d8rsmaapqxsw5xn2hd9w628szdljf872w9zqbfl13wqry99k",
     "Err": ""
   },
   "navicat-data-modeler": {
@@ -2707,44 +2713,44 @@
   },
   "navicat-for-mariadb": {
     "Token": "navicat-for-mariadb",
-    "Version": "17.0.5",
+    "Version": "17.0.6",
     "Hash": "0civyp700c6shz7mfmgfppsz73wc3ar4ip43z2kh4a9rlv4azmyk",
     "Err": ""
   },
   "navicat-for-mysql": {
     "Token": "navicat-for-mysql",
-    "Version": "17.0.5",
-    "Hash": "0qg0s3i2dn9sf7ls2kkrm92z0dplxiaiir0d0fq7gadrbn6ppbss",
+    "Version": "17.0.6",
+    "Hash": "1z52rhl4lg6in8kbcam7kk9dypp7gvnhx8y0s2s71152plbw70hn",
     "Err": ""
   },
   "navicat-for-oracle": {
     "Token": "navicat-for-oracle",
-    "Version": "17.0.5",
+    "Version": "17.0.6",
     "Hash": "1qvc683hgnqh017nhy73ixymizwl7iqnqfw35f5ymv6jg5qsln4c",
     "Err": ""
   },
   "navicat-for-postgresql": {
     "Token": "navicat-for-postgresql",
-    "Version": "17.0.5",
-    "Hash": "1201zq90salpja2ds5hkjc1d60qxbwxmz61246py8vggdkd06dr1",
+    "Version": "17.0.6",
+    "Hash": "19aaznqjxsh5k4kwl4w3wx4yz1ds49xgrbql20h3jxdk3d1phrzn",
     "Err": ""
   },
   "navicat-for-sql-server": {
     "Token": "navicat-for-sql-server",
-    "Version": "17.0.5",
+    "Version": "17.0.6",
     "Hash": "00xihnmk12ij5a5z9ls967v4qzfiy6wlkk6d17s6s13b9m4ifbpq",
     "Err": ""
   },
   "navicat-for-sqlite": {
     "Token": "navicat-for-sqlite",
-    "Version": "17.0.5",
+    "Version": "17.0.6",
     "Hash": "0spr7wh0a7ywc0y4g355av9bchyscdk8xhh3j60zh5cgln4g3bzc",
     "Err": ""
   },
   "navicat-premium": {
     "Token": "navicat-premium",
-    "Version": "17.0.5",
-    "Hash": "0b4v16f6wy3g4ih4awx8hkkjnbig87qfvwkps5y8qp4c5864fsaz",
+    "Version": "17.0.6",
+    "Hash": "03swsgpjyfx7zgj4pdlp5f9fhi6wimpa83101qh2wxy7ffdy7ihx",
     "Err": ""
   },
   "navicat-premium-essentials": {
@@ -2809,8 +2815,8 @@
   },
   "nordvpn": {
     "Token": "nordvpn",
-    "Version": "8.19.1",
-    "Hash": "0zbb4152c4na4wsjm6r3390j8dl2as6dikgd63s7x678rddl9ykc",
+    "Version": "8.19.3",
+    "Hash": "0r3qndhxgdwlayh1n6lrwxvmrvv4zrdgab4gd1gj4vgzwlvssg6j",
     "Err": ""
   },
   "northern-softworks-cache-cleaner": {
@@ -3589,8 +3595,8 @@
   },
   "securityspy": {
     "Token": "securityspy",
-    "Version": "6.2",
-    "Hash": "19pd2slvh3sx1wapr96camp5lfmqvvlmsbsnkf872r38zv9bfj8x",
+    "Version": "6.3",
+    "Hash": "0g939byd3mmycjhw3anrhjr67vfal95jvnrzgayc4vr446h644f7",
     "Err": ""
   },
   "send-anywhere": {
@@ -3883,7 +3889,7 @@
   },
   "steamcmd": {
     "Token": "steamcmd",
-    "Version": "1714855729",
+    "Version": "1715636761",
     "Hash": "0fvmpnbv0rsbgf6wz9ps5l7iaxhg9541qqwfqzfclnlfk341gk4f",
     "Err": ""
   },
@@ -4093,7 +4099,7 @@
   },
   "tiptoi-manager": {
     "Token": "tiptoi-manager",
-    "Version": "5.1",
+    "Version": "5.2",
     "Hash": "0id4hg1yv1zm6mrwlf5cqhf4v0bxbcz7b0bv78bx21ii61dsqx34",
     "Err": ""
   },
@@ -4105,7 +4111,7 @@
   },
   "to-audio-converter": {
     "Token": "to-audio-converter",
-    "Version": "1.0.19,1237",
+    "Version": "1.0.19,1244",
     "Hash": "1a55gpn1s74bhxddl2bzfhbp9429k25y6aakg83g3spqb1rj9hsh",
     "Err": ""
   },
