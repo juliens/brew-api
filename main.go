@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Cask struct {
@@ -23,25 +26,16 @@ type Cask struct {
 	UrlSpecs  struct {
 		Verified string `json:"verified"`
 	} `json:"url_specs"`
-	Version            string      `json:"version"`
-	Installed          interface{} `json:"installed"`
-	InstalledTime      interface{} `json:"installed_time"`
-	BundleVersion      interface{} `json:"bundle_version"`
-	BundleShortVersion interface{} `json:"bundle_short_version"`
-	Outdated           bool        `json:"outdated"`
-	Sha256             string      `json:"sha256"`
-	Artifacts          []struct {
-		App []string `json:"app,omitempty"`
-		Zap []struct {
-			Trash string `json:"trash"`
-		} `json:"zap,omitempty"`
-	} `json:"artifacts"`
-	Caveats   interface{} `json:"caveats"`
-	DependsOn struct {
-		Macos struct {
-			Field1 []string `json:">="`
-		} `json:"macos"`
-	} `json:"depends_on"`
+	Version            string        `json:"version"`
+	Installed          interface{}   `json:"installed"`
+	InstalledTime      interface{}   `json:"installed_time"`
+	BundleVersion      interface{}   `json:"bundle_version"`
+	BundleShortVersion interface{}   `json:"bundle_short_version"`
+	Outdated           bool          `json:"outdated"`
+	Sha256             string        `json:"sha256"`
+	Artifacts          interface{}   `json:"artifacts"`
+	Caveats            interface{}   `json:"caveats"`
+	DependsOn          interface{}   `json:"depends_on"`
 	ConflictsWith      interface{}   `json:"conflicts_with"`
 	Container          interface{}   `json:"container"`
 	AutoUpdates        interface{}   `json:"auto_updates"`
@@ -54,176 +48,124 @@ type Cask struct {
 	TapGitHead         string        `json:"tap_git_head"`
 	Languages          []interface{} `json:"languages"`
 	RubySourcePath     string        `json:"ruby_source_path"`
-	RubySourceChecksum struct {
-		Sha256 string `json:"sha256"`
-	} `json:"ruby_source_checksum"`
-	Variations struct {
-		Sonoma struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"sonoma"`
-		Ventura struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"ventura"`
-		Monterey struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"monterey"`
-		BigSur struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"big_sur"`
-		Catalina struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"catalina"`
-		Mojave struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"mojave"`
-		HighSierra struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"high_sierra"`
-		Sierra struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"sierra"`
-		ElCapitan struct {
-			Url    string `json:"url"`
-			Sha256 string `json:"sha256"`
-		} `json:"el_capitan"`
-	} `json:"variations"`
+	RubySourceChecksum interface{}   `json:"ruby_source_checksum"`
+	Variations         interface{}   `json:"variations"`
 }
 
-var cacheResponse map[string]HashResponse
+var cacheCasks map[Key]*Cask
+
+type Key struct {
+	Token   string
+	Version string
+}
 
 func main() {
-	cacheResponse = make(map[string]HashResponse)
+	if len(os.Args) < 2 {
+		log.Fatal("not enough argument")
+	}
+
+	caskJsonUrl := os.Args[1]
+	resp, err := http.Get(caskJsonUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp.StatusCode != 200 {
+		log.Fatal(resp.Status)
+	}
+
 	casks := []*Cask{}
+	err = json.NewDecoder(resp.Body).Decode(&casks)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	readCacheCasks := []*Cask{}
 	file, err := os.ReadFile("./cask.json")
 	if err != nil {
 		log.Fatal(err)
 	}
-	json.Unmarshal(file, &casks)
-
-	cache, err := os.ReadFile("./cache.json")
+	err = json.Unmarshal(file, &readCacheCasks)
 	if err != nil {
 		log.Fatal(err)
 	}
-	json.Unmarshal(cache, &cacheResponse)
 
-	result := make(chan HashResponse)
-	results := map[string]HashResponse{}
-	json.Unmarshal(cache, &results)
+	cacheCasks = make(map[Key]*Cask)
+	for _, cask := range readCacheCasks {
+		cacheCasks[Key{cask.Token, cask.Version}] = cask
+	}
+
+	result := make(chan *Cask)
 
 	go func() {
+		newCasks := []*Cask{}
 		for response := range result {
-			results[response.Token] = response
+			newCasks = append(newCasks, response)
+			fmt.Printf("%d / %d  handled\n", len(newCasks), len(casks))
 		}
 
-		cacheFile, err := os.OpenFile("./cache.json", os.O_WRONLY, 0x777)
+		slices.SortFunc(newCasks, func(a, b *Cask) int {
+			return strings.Compare(a.Token, b.Token)
+		})
+
+		cacheFile, err := os.OpenFile("./cask.json", os.O_WRONLY, 0x777)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		encoder := json.NewEncoder(cacheFile)
 		encoder.SetIndent("", "  ")
-		err = encoder.Encode(results)
+		err = encoder.Encode(newCasks)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}()
 
-	workers := make(chan Cask)
+	workers := make(chan *Cask)
 	wg := sync.WaitGroup{}
 	for range 100 {
 		go func() {
 			wg.Add(1)
 			defer wg.Done()
 			for worker := range workers {
-				fmt.Println("WORKERS")
 				result <- HandleHashRequest(worker)
 			}
 		}()
 	}
 
 	for _, cask := range casks {
-		if cask.Sha256 == "no_check" {
-			workers <- *cask
-		}
+		workers <- cask
 	}
 	close(workers)
 	wg.Wait()
 	close(result)
-
-	cache, err = os.ReadFile("./cache.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	json.Unmarshal(cache, &cacheResponse)
-
-	for _, cask := range casks {
-		if cask.Sha256 == "no_check" {
-			if resp, ok := cacheResponse[cask.Token]; ok {
-				if cask.Version == resp.Version {
-					cask.Sha256 = resp.Hash
-				}
-			}
-
-		}
-	}
-
-	caskJson, err := os.OpenFile("./cask.json", os.O_WRONLY, 0x777)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	encoder := json.NewEncoder(caskJson)
-	encoder.SetIndent("", "  ")
-	err = encoder.Encode(casks)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func getHash(url string) (string, error) {
-	out, err := exec.Command("nix-prefetch-url", url).Output()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	out, err := exec.CommandContext(ctx, "nix-prefetch-url", fmt.Sprintf("%s", url)).Output()
 	if err != nil {
-		fmt.Println(string(err.(*exec.ExitError).Stderr))
 		return "", err
 	}
 	return string(out), nil
 }
 
-func HandleHashRequest(cask Cask) HashResponse {
-	if cacheItem, ok := cacheResponse[cask.Token]; ok {
-		if cacheItem.Version == cask.Version {
-			return cacheItem
+func HandleHashRequest(cask *Cask) *Cask {
+	if cask.Sha256 != "no_check" {
+		return cask
+	}
+
+	if cachedCask, ok := cacheCasks[Key{cask.Token, cask.Version}]; ok {
+		if cachedCask.Sha256 == "error" || cask.Version != "latest" {
+			return cachedCask
 		}
 	}
+
 	hash, err := getHash(cask.Url)
-	var msg string
 	if err != nil {
-		msg = err.Error()
+		cask.Sha256 = "error"
+		return cask
 	}
-	if err != nil && errors.Is(err, &exec.ExitError{}) {
-		msg = err.Error() + string(err.(*exec.ExitError).Stderr)
-	}
-
-	return HashResponse{
-		Hash:    strings.TrimSpace(hash),
-		Err:     msg,
-		Token:   cask.Token,
-		Version: cask.Version,
-	}
-
-}
-
-type HashResponse struct {
-	Token   string
-	Version string
-	Hash    string
-	Err     string
+	cask.Sha256 = hash
+	return cask
 }
