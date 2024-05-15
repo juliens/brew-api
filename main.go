@@ -171,7 +171,9 @@ func HandleHashRequest(cask *Cask) *Cask {
 		return cask
 	}
 
-	fmt.Printf("%s %s =>   updated\n", cask.Token, cask.Version)
+	if cask.Sha256 != hash {
+		fmt.Printf("%s %s =>   updated\n", cask.Token, cask.Version)
+	}
 	cask.Sha256 = hash
 	return cask
 }
