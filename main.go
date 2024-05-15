@@ -136,9 +136,6 @@ func main() {
 	}
 
 	for _, cask := range casks {
-		if cask.Token == "discord" {
-			fmt.Println(cask)
-		}
 		workers <- cask
 	}
 	close(workers)
@@ -158,9 +155,6 @@ func getHash(url string) (string, error) {
 }
 
 func HandleHashRequest(cask *Cask) *Cask {
-	if cask.Token == "discord" {
-		fmt.Printf("%+v\n", cask)
-	}
 	if cask.Sha256 != "no_check" {
 		return cask
 	}
