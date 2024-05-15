@@ -108,7 +108,7 @@ func main() {
 			return strings.Compare(a.Token, b.Token)
 		})
 
-		cacheFile, err := os.OpenFile("./cask.json", os.O_WRONLY, 0x777)
+		cacheFile, err := os.Create("./cask.json")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -159,7 +159,9 @@ func HandleHashRequest(cask *Cask) *Cask {
 		return cask
 	}
 
+	cachedSha := ""
 	if cachedCask, ok := cacheCasks[Key{cask.Token, cask.Version}]; ok {
+		cachedSha = cachedCask.Sha256
 		if cachedCask.Sha256 == "error" || cask.Version != "latest" {
 			return cachedCask
 		}
@@ -171,8 +173,8 @@ func HandleHashRequest(cask *Cask) *Cask {
 		return cask
 	}
 
-	if cask.Sha256 != hash {
-		fmt.Printf("%s %s =>   updated\n", cask.Token, cask.Version)
+	if cask.Sha256 != hash && cachedSha != hash {
+		fmt.Printf("%s %s =>   updated  from %s/%s to %s\n", cask.Token, cask.Version, cask.Sha256, cachedSha, hash)
 	}
 	cask.Sha256 = hash
 	return cask
