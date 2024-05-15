@@ -96,11 +96,12 @@ func main() {
 
 	result := make(chan *Cask)
 
+	finished := make(chan struct{})
 	go func() {
 		newCasks := []*Cask{}
 		for response := range result {
 			newCasks = append(newCasks, response)
-			fmt.Printf("%d / %d  handled\n", len(newCasks), len(casks))
+			// fmt.Printf("%d / %d  handled\n", len(newCasks), len(casks))
 		}
 
 		slices.SortFunc(newCasks, func(a, b *Cask) int {
@@ -118,6 +119,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		close(finished)
 	}()
 
 	workers := make(chan *Cask)
@@ -133,11 +136,15 @@ func main() {
 	}
 
 	for _, cask := range casks {
+		if cask.Token == "discord" {
+			fmt.Println(cask)
+		}
 		workers <- cask
 	}
 	close(workers)
 	wg.Wait()
 	close(result)
+	<-finished
 }
 
 func getHash(url string) (string, error) {
@@ -151,6 +158,9 @@ func getHash(url string) (string, error) {
 }
 
 func HandleHashRequest(cask *Cask) *Cask {
+	if cask.Token == "discord" {
+		fmt.Printf("%+v\n", cask)
+	}
 	if cask.Sha256 != "no_check" {
 		return cask
 	}
@@ -166,6 +176,8 @@ func HandleHashRequest(cask *Cask) *Cask {
 		cask.Sha256 = "error"
 		return cask
 	}
+
+	fmt.Printf("%s %s =>   updated\n", cask.Token, cask.Version)
 	cask.Sha256 = hash
 	return cask
 }
