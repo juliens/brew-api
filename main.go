@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -147,8 +148,15 @@ func main() {
 func getHash(url string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	out, err := exec.CommandContext(ctx, "nix-prefetch-url", fmt.Sprintf("%s", url)).Output()
+
+	c := exec.CommandContext(ctx, "nix-prefetch-url", fmt.Sprintf("%s", url))
+	var stderr bytes.Buffer
+	c.Stderr = &stderr
+
+	out, err := c.Output()
+
 	if err != nil {
+		fmt.Println(stderr.String())
 		return "", err
 	}
 	return string(out), nil
@@ -169,12 +177,13 @@ func HandleHashRequest(cask *Cask) *Cask {
 
 	hash, err := getHash(cask.Url)
 	if err != nil {
+		fmt.Println(err)
 		cask.Sha256 = "no_check"
 		return cask
 	}
 
 	if cask.Sha256 != hash && cachedSha != hash {
-		fmt.Printf("%s %s =>   updated  from %s/%s to %s\n", cask.Token, cask.Version, cask.Sha256, cachedSha, hash)
+		// fmt.Printf("%s %s =>   updated  from %s/%s to %s\n", cask.Token, cask.Version, cask.Sha256, cachedSha, hash)
 	}
 	cask.Sha256 = hash
 	return cask
