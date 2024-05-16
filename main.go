@@ -169,7 +169,7 @@ func HandleHashRequest(cask *Cask) *Cask {
 
 	hash, err := getHash(cask.Url)
 	if err != nil {
-		cask.Sha256 = "error"
+		cask.Sha256 = "no_check"
 		return cask
 	}
 
